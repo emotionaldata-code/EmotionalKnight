@@ -1,0 +1,94 @@
+/* Retro Dissolution & Card Animations */
+
+@keyframes retro-resolve {
+    0% {
+        opacity: 0;
+        filter: url(#retro-dissolve);
+        transform: scale(0.9);
+    }
+
+    100% {
+        opacity: 1;
+        filter: none;
+        transform: scale(1);
+    }
+}
+
+@keyframes retro-absorption {
+    0% {
+        opacity: 1;
+        filter: none;
+        transform: scale(1) translateY(0);
+    }
+
+    50% {
+        filter: brightness(2) drop-shadow(0 0 10px cyan);
+        transform: scale(1.1) translateY(-10px);
+    }
+
+    100% {
+        opacity: 0;
+        filter: brightness(5) drop-shadow(0 0 20px white);
+        transform: scale(0) translateY(-100px);
+    }
+}
+
+@keyframes retro-dispersion {
+    0% {
+        opacity: 1;
+        filter: none;
+        transform: scale(1);
+    }
+
+    20% {
+        transform: translateX(-2px) rotate(-1deg);
+        filter: hue-rotate(90deg);
+    }
+
+    100% {
+        opacity: 0;
+        filter: url(#retro-dissolve-heavy) grayscale(1);
+        transform: scale(0.8);
+    }
+}
+
+@keyframes scan {
+    0% {
+        transform: translateY(0);
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    90% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(140px);
+        opacity: 0;
+    }
+}
+
+.animate-retro-resolve {
+    animation: retro-resolve 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.animate-retro-absorption {
+    animation: retro-absorption 0.6s ease-in forwards;
+}
+
+.animate-retro-dispersion {
+    animation: retro-dispersion 0.6s ease-out forwards;
+}
+
+.empty-slot {
+    background: rgba(74, 222, 128, 0.05);
+    border: 2px dashed rgba(74, 222, 128, 0.2);
+}
+
+.text-shadow-glow {
+    text-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
+}

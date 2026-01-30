@@ -1,0 +1,84 @@
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+@import "tailwindcss";
+
+@theme {
+    --font-retro: 'VT323', monospace;
+    --color-retro-green: #4ade80;
+    --color-retro-bg: #050505;
+    --color-retro-dark: #1a1a1a;
+}
+
+body {
+    margin: 0;
+    width: 100%;
+    min-height: 100vh;
+    background-color: var(--color-retro-bg);
+    background-image:
+        linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    background-size: 100% 2px, 3px 100%;
+    color: var(--color-retro-green);
+    font-family: var(--font-retro);
+    font-size: 1.2rem;
+    overflow-x: hidden;
+}
+
+::selection {
+    background: var(--color-retro-green);
+    color: black;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-retro-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-retro-dark);
+    border: 1px solid var(--color-retro-green);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-retro-green);
+}
+
+@layer utilities {
+    .bg-grid-green {
+        background-image:
+            linear-gradient(to right, rgba(74, 222, 128, 0.05) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(74, 222, 128, 0.05) 1px, transparent 1px);
+        background-size: 40px 40px;
+    }
+
+    .bg-vignette {
+        background: radial-gradient(circle, transparent 40%, rgba(0, 0, 0, 0.8) 100%);
+    }
+
+    .animate-scan {
+        animation: scan 8s linear infinite;
+    }
+
+    @keyframes scan {
+        0% {
+            transform: translateY(-100%);
+            opacity: 0;
+        }
+
+        10% {
+            opacity: 1;
+        }
+
+        90% {
+            opacity: 1;
+        }
+
+        100% {
+            transform: translateY(100vh);
+            opacity: 0;
+        }
+    }
+}
