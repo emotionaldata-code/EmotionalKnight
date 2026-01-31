@@ -14,6 +14,7 @@ export class GameLogic {
         this.clock = clock;
         this.broadcast = broadcast;
         this.startShuffleTimer();
+        this.startDuelTimer();
     }
 
     public setPlayerReady(sessionId: string) {
@@ -35,6 +36,18 @@ export class GameLogic {
                 this.state.shuffleCountdown--;
             } else {
                 this.shuffleDeck();
+            }
+        }, 1000);
+    }
+
+    private startDuelTimer() {
+        this.clock.setInterval(() => {
+            if (this.state.gameState !== "DUEL") return;
+
+            if (this.state.duelCountdown > 0) {
+                this.state.duelCountdown--;
+            } else {
+                this.executeDuelRound();
             }
         }, 1000);
     }
@@ -86,6 +99,93 @@ export class GameLogic {
         }
     }
 
+    public handleDuelCardSelection(sessionId: string, cardId: string) {
+        if (this.state.gameState !== "DUEL" || this.state.isRevealPhase) return;
+
+        const player = this.state.players.get(sessionId);
+        if (!player || player.hasSelected) return;
+
+        const playerDeck = this.state.playerDecks.get(sessionId);
+        if (!playerDeck) return;
+
+        const card = playerDeck.cards.find(c => c.id === cardId);
+        if (!card) return;
+
+        player.selectedCardId = cardId;
+        player.hasSelected = true;
+
+        console.log(`Player ${sessionId} selected card ${cardId} for duel round ${this.state.duelRound}`);
+
+        // Check if the other player has selected
+        let allSelected = true;
+        this.state.players.forEach((p, id) => {
+            if (!p.hasSelected) {
+                allSelected = false;
+            }
+        });
+
+        if (allSelected) {
+            // BOTH SELECTED: Start reveal phase
+            this.state.isRevealPhase = true;
+            this.clock.setTimeout(() => {
+                this.executeDuelRound();
+            }, 3000); // 3 seconds to see the reveal
+        } else {
+            // ONE SELECTED: Set countdown to 20s if it was higher
+            if (this.state.duelCountdown > 20) {
+                this.state.duelCountdown = 20;
+            }
+            this.broadcast("duelCardSelected", { sessionId, isHidden: true });
+        }
+    }
+
+    private executeDuelRound() {
+        console.log(`Executing Duel Round ${this.state.duelRound}`);
+
+        // 1. Auto-select for players who didn't pick (should only happen on timer expiry)
+        this.state.players.forEach((player, sessionId) => {
+            if (!player.hasSelected) {
+                const playerDeck = this.state.playerDecks.get(sessionId);
+                if (playerDeck) {
+                    const cardIndex = (this.state.duelRound - 1) % playerDeck.cards.length;
+                    const randomCard = playerDeck.cards[cardIndex];
+                    if (randomCard) {
+                        player.selectedCardId = randomCard.id;
+                        player.hasSelected = true;
+                    }
+                }
+            }
+        });
+
+        // 2. We are now in reveal phase if we weren't already (e.g. timeout)
+        this.state.isRevealPhase = true;
+
+        // 3. Broadcast round results for animation
+        this.broadcast("duelRoundResults", {
+            round: this.state.duelRound,
+            choices: Array.from(this.state.players.entries()).map(([id, p]) => ({ sessionId: id, cardId: p.selectedCardId }))
+        });
+
+        // 4. Prepare for next round after a pause
+        this.clock.setTimeout(() => {
+            this.state.isRevealPhase = false;
+
+            if (this.state.duelRound < 5) {
+                this.state.duelRound++;
+                this.state.duelCountdown = 30;
+                this.state.players.forEach(p => {
+                    p.hasSelected = false;
+                    p.selectedCardId = "";
+                });
+                this.broadcast("duelNextRound", { round: this.state.duelRound });
+            } else {
+                this.state.gameState = "GAME_OVER";
+                this.broadcast("gameStateChanged", { state: "GAME_OVER" });
+                console.log("Duel finished! Game Over.");
+            }
+        }, 4000); // 4 second pause to see both cards in the middle
+    }
+
     private checkDuelTransition() {
         let allPlayersReady = true;
 
@@ -106,6 +206,13 @@ export class GameLogic {
 
             this.clock.setTimeout(() => {
                 this.state.gameState = "DUEL";
+                this.state.duelCountdown = 30;
+                this.state.duelRound = 1;
+                this.state.isRevealPhase = false;
+                this.state.players.forEach(p => {
+                    p.hasSelected = false;
+                    p.selectedCardId = "";
+                });
                 this.broadcast("gameStateChanged", { state: "DUEL" });
                 console.log("Duel Phase Started!");
             }, 5000);

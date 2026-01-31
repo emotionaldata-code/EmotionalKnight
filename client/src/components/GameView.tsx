@@ -17,7 +17,11 @@ export const GameView = () => {
         me,
         playerDecks,
         gameState,
-        shuffleCountdown
+        shuffleCountdown,
+        duelCountdown,
+        duelRound,
+        isRevealPhase,
+        handleDuelCardClick
     } = useGameState(room);
 
     const hasAlreadySelected = me?.hasSelected || (pendingRemoval?.selectorId === room.sessionId);
@@ -31,7 +35,22 @@ export const GameView = () => {
                     playerDecks={playerDecks}
                     sessionId={room.sessionId}
                     players={room.state.players}
+                    duelCountdown={duelCountdown}
+                    duelRound={duelRound}
+                    isRevealPhase={isRevealPhase}
+                    onCardClick={handleDuelCardClick}
                 />
+            ) : gameState === "GAME_OVER" ? (
+                <div className="flex flex-col items-center justify-center py-20 gap-8 animate-fade-in">
+                    <h2 className="text-6xl text-retro-green uppercase tracking-widest text-shadow-glow">Game Over</h2>
+                    <div className="text-xl font-mono opacity-50 uppercase tracking-widest">Protocol Terminated</div>
+                    <button
+                        onClick={() => window.location.reload()}
+                        className="mt-8 px-8 py-4 border-2 border-retro-green text-retro-green hover:bg-retro-green hover:text-black font-bold uppercase transition-all"
+                    >
+                        Restart Simulation
+                    </button>
+                </div>
             ) : gameState === "DUEL_COUNTDOWN" ? (
                 <CountdownView onComplete={() => { }} />
             ) : (

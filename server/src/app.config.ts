@@ -5,6 +5,7 @@ import {
     playground,
     createRouter,
     createEndpoint,
+    matchMaker
 } from "colyseus";
 
 /**
@@ -38,8 +39,16 @@ const server = defineServer({
      * Read more: https://expressjs.com/en/starter/basic-routing.html
      */
     express: (app) => {
-        app.get("/hi", (req, res) => {
+        app.get("/test", (req, res) => {
             res.send("It's time to kick ass and chew bubblegum!");
+        });
+
+        app.get("/rooms/list", async (req, res) => {
+            const conditions: any = {
+                locked: false,
+                private: false,
+            };
+            res.json(await matchMaker.query(conditions));
         });
 
         /**

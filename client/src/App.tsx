@@ -5,6 +5,7 @@ import { PlayerList } from './components/PlayerList'
 import { GameView } from './components/GameView'
 import { UserProvider, useUser } from './context/UserContext'
 import { UserNamePrompt } from './components/UserNamePrompt'
+import { RoomList } from './components/RoomList'
 
 const MainContent = () => {
   const { username } = useUser();
@@ -27,7 +28,7 @@ import { CountdownView } from './components/CountdownView';
 import { useRoom } from './context/ServerConnectionContext';
 const InnerContent = () => {
   const room = useRoom();
-  const { isGameStarted, isConnected } = useServerConnection();
+  const { isGameStarted, isConnected, showRoomList } = useServerConnection();
   const [showCountdown, setShowCountdown] = useState(false);
   const [showGame, setShowGame] = useState(false);
 
@@ -55,7 +56,7 @@ const InnerContent = () => {
             Emotional Knight
           </h1>
 
-          {!isConnected ? (
+          {(!isConnected && !showRoomList) ? (
             <div className="w-full max-w-xl animate-fade-in">
               <RoomControls />
             </div>
@@ -65,7 +66,7 @@ const InnerContent = () => {
                 <RoomControls />
               </div>
               <div className="flex-1 max-w-sm">
-                <PlayerList />
+                {isConnected ? <PlayerList /> : <RoomList />}
               </div>
             </div>
           )}

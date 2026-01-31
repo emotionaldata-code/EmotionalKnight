@@ -3,7 +3,7 @@ import { useServerConnection } from "../context/ServerConnectionContext";
 import { useUser } from "../context/UserContext";
 
 export const RoomControls = () => {
-    const { isConnected, room, joinRoom, createRoom, leaveRoom } = useServerConnection();
+    const { isConnected, room, joinRoom, createRoom, leaveRoom, refreshAvailableRooms, setShowRoomList } = useServerConnection();
     const { username } = useUser();
     const [roomIdInput, setRoomIdInput] = useState("");
     const [showToast, setShowToast] = useState(false);
@@ -20,6 +20,11 @@ export const RoomControls = () => {
     const handleCreate = () => {
         createRoom({ name: username });
     };
+
+    const handleListRooms = async () => {
+        await refreshAvailableRooms();
+        setShowRoomList(true);
+    }
 
     const handleJoin = () => {
         if (roomIdInput) {
@@ -143,6 +148,12 @@ export const RoomControls = () => {
                     onClick={handleCreate}
                 >
                     Initialize New Room
+                </button>
+                <button
+                    className="w-full py-4 border-2 border-retro-green text-retro-green hover:bg-retro-green hover:text-black font-bold uppercase transition-colors shadow-[0_0_15px_rgba(74,222,128,0.1)]"
+                    onClick={handleListRooms}
+                >
+                    Rooms available
                 </button>
             </div>
         </div>

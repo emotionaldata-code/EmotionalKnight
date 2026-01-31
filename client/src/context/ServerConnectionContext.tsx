@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from "
 import { Room } from "@colyseus/sdk";
 import { serverConnection } from "../service/serverService";
 import type { MyState } from "../../../server/src/rooms/schema/MyRoomState";
+import type { GameRoom } from "../types/Room";
 
 interface ServerConnectionContextType {
     room?: Room<MyState>;
@@ -11,6 +12,10 @@ interface ServerConnectionContextType {
     joinOrCreateRoom: (roomName: string, options?: any) => Promise<void>;
     createRoom: (options?: any) => Promise<void>;
     leaveRoom: () => Promise<void>;
+    availableRooms: GameRoom[];
+    refreshAvailableRooms: () => Promise<void>;
+    showRoomList: boolean;
+    setShowRoomList: (show: boolean) => void;
 }
 
 const ServerConnectionContext = createContext<ServerConnectionContextType | undefined>(undefined);
@@ -19,6 +24,8 @@ export const ServerConnectionProvider = ({ children }: { children: ReactNode }) 
     const [room, setRoom] = useState<Room<MyState> | undefined>(undefined);
     const [isConnected, setIsConnected] = useState(false);
     const [isGameStarted, setIsGameStarted] = useState(false);
+    const [availableRooms, setAvailableRooms] = useState<GameRoom[]>([]);
+    const [showRoomList, setShowRoomList] = useState(false);
 
     useEffect(() => {
         setIsConnected(!!room);
@@ -70,8 +77,30 @@ export const ServerConnectionProvider = ({ children }: { children: ReactNode }) 
         }
     };
 
+    const refreshAvailableRooms = async () => {
+        try {
+            const rooms = await serverConnection.getAvailableRooms();
+            setAvailableRooms(rooms);
+        } catch (e) {
+            console.error("Failed to refresh rooms:", e);
+        }
+    };
+
+
     return (
-        <ServerConnectionContext.Provider value={{ room, isConnected, isGameStarted, joinRoom, createRoom, joinOrCreateRoom, leaveRoom }}>
+        <ServerConnectionContext.Provider value={{
+            room,
+            isConnected,
+            isGameStarted,
+            joinRoom,
+            createRoom,
+            joinOrCreateRoom,
+            leaveRoom,
+            availableRooms,
+            refreshAvailableRooms,
+            showRoomList,
+            setShowRoomList
+        }}>
             {children}
         </ServerConnectionContext.Provider>
     );

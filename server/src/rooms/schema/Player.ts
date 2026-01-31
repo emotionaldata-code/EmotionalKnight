@@ -6,6 +6,7 @@ export class Player extends Schema {
     @type("number") y: number = Math.floor(Math.random() * 100);
     @type("boolean") hasSelected: boolean = false;
     @type("boolean") isSelecting: boolean = false;
+    @type("string") selectedCardId: string = "";
 
     constructor(data: any) {
         super();

@@ -24,6 +24,10 @@ export class MyRoom extends Room<{ state: MyState }> {
       this.gameLogic.setPlayerReady(client.sessionId);
     });
 
+    this.onMessage("duelSelectCard", (client, message) => {
+      this.gameLogic.handleDuelCardSelection(client.sessionId, message.cardId);
+    });
+
     this.onMessage("startGame", (client) => {
       if (this.clients.length >= 2) {
         this.state.gameState = "COLLECTION";

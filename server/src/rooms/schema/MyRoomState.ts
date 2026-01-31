@@ -25,4 +25,7 @@ export class MyState extends Schema {
   @type({ map: Deck }) playerDecks = new MapSchema<Deck>();
   @type("string") gameState: string = "LOBBY";
   @type("number") shuffleCountdown: number = 5;
+  @type("number") duelCountdown: number = 5;
+  @type("number") duelRound: number = 1;
+  @type("boolean") isRevealPhase: boolean = false;
 }

@@ -7,6 +7,9 @@ export const useGameState = (room: Room<MyState>) => {
     const [pendingRemoval, setPendingRemoval] = useState<{ id: string, selectorId: string } | null>(null);
     const [gameState, setGameState] = useState<string>(room.state.gameState);
     const [shuffleCountdown, setShuffleCountdown] = useState<number>(room.state.shuffleCountdown);
+    const [duelCountdown, setDuelCountdown] = useState<number>(room.state.duelCountdown);
+    const [duelRound, setDuelRound] = useState<number>(room.state.duelRound);
+    const [isRevealPhase, setIsRevealPhase] = useState<boolean>(room.state.isRevealPhase);
 
     useEffect(() => {
         const updateHand = () => {
@@ -30,6 +33,9 @@ export const useGameState = (room: Room<MyState>) => {
             setHand([...room.state.deckToView]);
             setGameState(room.state.gameState);
             setShuffleCountdown(room.state.shuffleCountdown);
+            setDuelCountdown(room.state.duelCountdown);
+            setDuelRound(room.state.duelRound);
+            setIsRevealPhase(room.state.isRevealPhase);
             // Clear pending removal if it's no longer in the state
             setPendingRemoval(prev => {
                 if (!prev) return null;
@@ -60,13 +66,26 @@ export const useGameState = (room: Room<MyState>) => {
         room.send("selectCard", { index });
     };
 
+    const handleDuelCardClick = (cardId: string) => {
+        if (gameState !== "DUEL") return;
+        const me = room.state.players.get(room.sessionId);
+        if (me?.hasSelected) return;
+
+        room.send("duelSelectCard", { cardId });
+    };
+
     return {
         hand,
         pendingRemoval,
         handleCardClick,
+        handleDuelCardClick,
         gameState,
         shuffleCountdown,
+        duelCountdown,
+        duelRound,
+        isRevealPhase,
         me: room.state.players.get(room.sessionId),
-        playerDecks: room.state.playerDecks
+        playerDecks: room.state.playerDecks,
+        players: room.state.players
     };
 };

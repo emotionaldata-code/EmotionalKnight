@@ -30,7 +30,7 @@ export const RetroCard = ({
     const borderColor = isHidden ? 'border-red-500/50' : 'border-retro-green';
     const textColor = isHidden ? 'text-red-500' : 'text-retro-green';
 
-    if (card.isRemoved && size === 'normal' && !forceShow) {
+    if (card.isRemoved && size === 'normal' && !forceShow && !isHidden) {
         return (
             <div className={`${sizeClasses} empty-slot relative flex items-center justify-center`}>
                 <span className="text-retro-green opacity-20 font-mono text-[10px] uppercase text-center p-2">Slot Empty</span>
